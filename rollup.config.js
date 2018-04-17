@@ -1,21 +1,42 @@
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
-import uglify from 'rollup-plugin-uglify';
+const resolve = require('rollup-plugin-node-resolve');
+const commonjs = require('rollup-plugin-commonjs');
+const json = require('rollup-plugin-json');
 
-// `npm run build` -> `production` is true
-// `npm run dev` -> `production` is false
-const production = !process.env.ROLLUP_WATCH;
-
-export default {
-	input: 'src/main.js',
+module.exports = {
+	input: 'src/cli-entry.js',
 	output: {
-		file: 'public/bundle.js',
-		format: 'iife', // immediately-invoked function expression — suitable for <script> tags
-		sourcemap: true
+		file: 'dist/lint-md.js',
+		format: 'cjs',
+		sourcemap: false
 	},
+    external: [
+        'stream',
+        'path',
+        'module',
+        'util',
+        'tty',
+        'os',
+        'fs',
+        'events',
+        'assert'
+    ],
 	plugins: [
-		resolve(), // tells Rollup how to find date-fns in node_modules
-		commonjs(), // converts date-fns to ES modules
-		production && uglify() // minify, but only in production
+        {
+            name: 'brute-replace',
+            transform(code, id) {
+                const normID = id.replace(__dirname, '').replace(/\\+/g, '/');
+                if (normID === '/node_modules/concat-stream/index.js') {
+                    return code.replace("'readable-stream'", "'stream'");
+                }
+                if (normID === '/node_modules/unified-args/lib/options.js') {
+                    return code.replace("'./schema'", "'./schema.json'");
+                }
+            }
+        },
+        json({
+            preferConst: true
+        }),
+        resolve(), // tells Rollup how to find date-fns in node_modules
+        commonjs(), // converts date-fns to ES modules
 	]
 };
