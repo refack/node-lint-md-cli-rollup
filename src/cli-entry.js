@@ -9,21 +9,21 @@ const cli = require('../package.json');
 const { plugins } = require('remark-preset-lint-node');
 
 const args = {
-    processor: processor,
-    name: proc.name,
-    description: cli.description,
-    version: [
-        proc.name + ': ' + proc.version,
-        cli.name + ': ' + cli.version
-    ].join(', '),
-    ignoreName: '.' + proc.name + 'ignore',
-    extensions: extensions
+  processor: processor,
+  name: proc.name,
+  description: cli.description,
+  version: [
+    proc.name + ': ' + proc.version,
+    cli.name + ': ' + cli.version
+  ].join(', '),
+  ignoreName: '.' + proc.name + 'ignore',
+  extensions: extensions
 };
-const config = options(process.argv.slice(2), args)
+const config = options(process.argv.slice(2), args);
 config.detectConfig = false;
 config.plugins = plugins;
 
 engine(config, function done(err, code, context) {
-    if (err) console.error(err);
-    process.exit(code);
+  if (err) console.error(err);
+  process.exit(code);
 });
